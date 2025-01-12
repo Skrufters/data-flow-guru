@@ -11,6 +11,7 @@ import {
 import { Plus, Code, Download } from "lucide-react";
 import { LogicBuilder } from "./LogicBuilder";
 import { useToast } from "@/hooks/use-toast";
+import Papa from "papaparse";
 
 interface MappingField {
   sourceField?: string;
@@ -81,6 +82,42 @@ export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEdito
     });
   };
 
+  const handleDownload = () => {
+    if (fields.length === 0) {
+      toast({
+        title: "No Mapping Available",
+        description: "Please create a mapping first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert mapping to CSV format
+    const csvData = fields.map(field => ({
+      sourceField: field.sourceField || "",
+      destinationField: field.destinationField,
+      customLogic: field.customLogic || ""
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", "mapping.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Mapping Downloaded",
+      description: "Your mapping configuration has been downloaded as CSV.",
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -142,16 +179,14 @@ export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEdito
         </Button>
 
         <div className="flex gap-2">
-          {onDownload && (
-            <Button 
-              variant="outline"
-              onClick={onDownload}
-              className="enhanced-button"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download Mapping
-            </Button>
-          )}
+          <Button 
+            variant="outline"
+            onClick={handleDownload}
+            className="enhanced-button"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Mapping
+          </Button>
 
           <Button 
             onClick={handleSave}

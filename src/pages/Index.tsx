@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Play, Edit, Wand2 } from "lucide-react";
+import Papa from "papaparse";
 
 interface MappingField {
   sourceField?: string;
@@ -29,10 +30,34 @@ export default function Index() {
 
   const handleMappingFileSelect = async (file: File) => {
     setMappingFile(file);
-    // In a real implementation, we would parse the mapping file here
-    toast({
-      title: "Mapping File Loaded",
-      description: "The mapping configuration has been loaded successfully.",
+    
+    // Parse the CSV mapping file
+    Papa.parse(file, {
+      complete: (results) => {
+        if (results.data && Array.isArray(results.data) && results.data.length > 0) {
+          // Skip header row and convert to MappingField format
+          const mappingData = (results.data as string[][]).slice(1)
+            .map(row => ({
+              sourceField: row[0] || undefined,
+              destinationField: row[1] || "",
+              customLogic: row[2] || undefined
+            }))
+            .filter(field => field.destinationField); // Filter out empty rows
+
+          setCurrentMapping(mappingData);
+          toast({
+            title: "Mapping File Loaded",
+            description: `Successfully loaded ${mappingData.length} field mappings.`,
+          });
+        }
+      },
+      error: (error) => {
+        toast({
+          title: "Error Loading Mapping",
+          description: "Failed to parse the mapping file. Please ensure it's a valid CSV.",
+          variant: "destructive",
+        });
+      }
     });
   };
 
@@ -40,45 +65,31 @@ export default function Index() {
     setCurrentMapping(mapping);
     setShowMappingEditor(false);
     
-    // In a real implementation, we would save the mapping to a file here
-    const mappingJson = JSON.stringify(mapping, null, 2);
-    const blob = new Blob([mappingJson], { type: "application/json" });
+    // Convert mapping to CSV and save
+    const csvData = mapping.map(field => [
+      field.sourceField || "",
+      field.destinationField,
+      field.customLogic || ""
+    ]);
+    
+    // Add header row
+    csvData.unshift(["sourceField", "destinationField", "customLogic"]);
+    
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement("a");
     a.href = url;
-    a.download = "mapping.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleDownloadMapping = () => {
-    if (currentMapping.length === 0) {
-      toast({
-        title: "No Mapping Available",
-        description: "Please create a mapping first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const mappingJson = JSON.stringify(currentMapping, null, 2);
-    const blob = new Blob([mappingJson], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mapping.json";
+    a.download = "mapping.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
     toast({
-      title: "Mapping Downloaded",
-      description: "Your mapping configuration has been downloaded.",
+      title: "Mapping Saved",
+      description: `Successfully saved mapping with ${mapping.length} fields.`,
     });
   };
 
@@ -119,12 +130,12 @@ export default function Index() {
 
               <div className="space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">
-                  Mapping File (JSON)
+                  Mapping File (CSV)
                 </label>
                 <FileUpload
                   onFileSelect={handleMappingFileSelect}
-                  accept={{ "application/json": [".json"] }}
-                  label="Upload mapping JSON file"
+                  accept={{ "text/csv": [".csv"] }}
+                  label="Upload mapping CSV file"
                 />
               </div>
 
@@ -152,15 +163,6 @@ export default function Index() {
                 Edit Mapping
               </Button>
               <Button 
-                variant="outline"
-                onClick={handleDownloadMapping}
-                className="enhanced-button"
-                disabled={currentMapping.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download Mapping
-              </Button>
-              <Button 
                 className="enhanced-button gradient-animate text-white"
                 disabled={!sourceFile || (!mappingFile && currentMapping.length === 0)}
               >
@@ -175,7 +177,6 @@ export default function Index() {
               <MappingEditor
                 sourceFields={sourceFields}
                 onSave={handleSaveMapping}
-                onDownload={currentMapping.length > 0 ? handleDownloadMapping : undefined}
               />
             </div>
           </TabsContent>
@@ -187,7 +188,6 @@ export default function Index() {
           <MappingEditor
             sourceFields={sourceFields}
             onSave={handleSaveMapping}
-            onDownload={handleDownloadMapping}
           />
         </div>
       )}
