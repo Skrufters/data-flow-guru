@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { 
   Variable, 
   Code, 
-  SplitSquare, 
+  ArrowDown,
   WrapText,
   RotateCcw 
 } from "lucide-react";
@@ -56,7 +56,7 @@ export function LogicBuilder({
           variant="outline" 
           onClick={() => addOperation("if")}
         >
-          <SplitSquare className="h-4 w-4 mr-2" />
+          <ArrowDown className="h-4 w-4 mr-2" />
           If/Then
         </Button>
         <Button 
