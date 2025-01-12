@@ -4,32 +4,82 @@ import { MappingEditor } from "@/components/MappingEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Download, Play, Edit, Wand2 } from "lucide-react";
+
+interface MappingField {
+  sourceField?: string;
+  destinationField: string;
+  customLogic?: string;
+}
 
 export default function Index() {
   const { toast } = useToast();
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [mappingFile, setMappingFile] = useState<File | null>(null);
+  const [sourceFields, setSourceFields] = useState<string[]>([]);
   const [outboundFileName, setOutboundFileName] = useState("");
   const [showMappingEditor, setShowMappingEditor] = useState(false);
-  
-  // Mock source fields - in reality, these would come from parsing the source file
-  const sourceFields = ["field1", "field2", "field3", "field4", "field5"];
+  const [currentMapping, setCurrentMapping] = useState<MappingField[]>([]);
 
-  const handleExecuteMapping = async () => {
+  const handleSourceFileSelect = (file: File, headers: string[]) => {
+    setSourceFile(file);
+    setSourceFields(headers);
+  };
+
+  const handleMappingFileSelect = async (file: File) => {
+    setMappingFile(file);
+    // In a real implementation, we would parse the mapping file here
     toast({
-      title: "Transformation Complete",
-      description: "Your file has been processed successfully.",
+      title: "Mapping File Loaded",
+      description: "The mapping configuration has been loaded successfully.",
     });
   };
 
-  const handleSaveMapping = async (mapping: any) => {
-    toast({
-      title: "Mapping Saved",
-      description: "Your mapping configuration has been saved successfully.",
-    });
+  const handleSaveMapping = (mapping: MappingField[]) => {
+    setCurrentMapping(mapping);
     setShowMappingEditor(false);
+    
+    // In a real implementation, we would save the mapping to a file here
+    const mappingJson = JSON.stringify(mapping, null, 2);
+    const blob = new Blob([mappingJson], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mapping.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadMapping = () => {
+    if (currentMapping.length === 0) {
+      toast({
+        title: "No Mapping Available",
+        description: "Please create a mapping first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const mappingJson = JSON.stringify(currentMapping, null, 2);
+    const blob = new Blob([mappingJson], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mapping.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Mapping Downloaded",
+      description: "Your mapping configuration has been downloaded.",
+    });
   };
 
   return (
@@ -61,7 +111,7 @@ export default function Index() {
                   Source File (CSV)
                 </label>
                 <FileUpload
-                  onFileSelect={setSourceFile}
+                  onFileSelect={handleSourceFileSelect}
                   accept={{ "text/csv": [".csv"] }}
                   label="Upload source CSV file"
                 />
@@ -69,12 +119,12 @@ export default function Index() {
 
               <div className="space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">
-                  Mapping File (CSV)
+                  Mapping File (JSON)
                 </label>
                 <FileUpload
-                  onFileSelect={setMappingFile}
-                  accept={{ "text/csv": [".csv"] }}
-                  label="Upload mapping CSV file"
+                  onFileSelect={handleMappingFileSelect}
+                  accept={{ "application/json": [".json"] }}
+                  label="Upload mapping JSON file"
                 />
               </div>
 
@@ -96,20 +146,23 @@ export default function Index() {
                 variant="outline" 
                 onClick={() => setShowMappingEditor(true)}
                 className="enhanced-button"
+                disabled={!sourceFile}
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Mapping
               </Button>
               <Button 
                 variant="outline"
+                onClick={handleDownloadMapping}
                 className="enhanced-button"
+                disabled={currentMapping.length === 0}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download Mapping
               </Button>
               <Button 
-                onClick={handleExecuteMapping}
                 className="enhanced-button gradient-animate text-white"
+                disabled={!sourceFile || (!mappingFile && currentMapping.length === 0)}
               >
                 <Play className="h-4 w-4 mr-2" />
                 Execute Mapping
@@ -122,6 +175,7 @@ export default function Index() {
               <MappingEditor
                 sourceFields={sourceFields}
                 onSave={handleSaveMapping}
+                onDownload={currentMapping.length > 0 ? handleDownloadMapping : undefined}
               />
             </div>
           </TabsContent>
@@ -133,6 +187,7 @@ export default function Index() {
           <MappingEditor
             sourceFields={sourceFields}
             onSave={handleSaveMapping}
+            onDownload={handleDownloadMapping}
           />
         </div>
       )}

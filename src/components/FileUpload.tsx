@@ -1,21 +1,63 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Papa from "papaparse";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, headers?: string[]) => void;
   accept?: Record<string, string[]>;
   label: string;
 }
 
 export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles?.[0]) {
-      onFileSelect(acceptedFiles[0]);
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const processFile = async (file: File) => {
+    setIsProcessing(true);
+    
+    return new Promise<string[]>((resolve, reject) => {
+      Papa.parse(file, {
+        complete: (results) => {
+          if (results.data && Array.isArray(results.data) && results.data.length > 0) {
+            const headers = results.data[0] as string[];
+            resolve(headers);
+          } else {
+            reject(new Error("No data found in CSV"));
+          }
+        },
+        error: (error) => {
+          reject(error);
+        },
+        header: false
+      });
+    });
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    try {
+      const headers = await processFile(file);
+      onFileSelect(file, headers);
+      toast({
+        title: "File uploaded successfully",
+        description: `Found ${headers.length} columns in the CSV file.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error processing file",
+        description: "Please ensure it's a valid CSV file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
     }
-  }, [onFileSelect]);
+  }, [onFileSelect, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -28,7 +70,8 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
       {...getRootProps()} 
       className={cn(
         "drop-zone cursor-pointer group",
-        isDragActive && "active"
+        isDragActive && "active",
+        isProcessing && "opacity-50 cursor-wait"
       )}
     >
       <input {...getInputProps()} />
@@ -39,6 +82,8 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
         <p className="text-sm text-muted-foreground">
           {isDragActive ? (
             <span className="text-primary font-medium">Drop the file here</span>
+          ) : isProcessing ? (
+            "Processing file..."
           ) : (
             label
           )}
@@ -46,6 +91,7 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
         <Button 
           variant="outline" 
           size="sm"
+          disabled={isProcessing}
           className="enhanced-button bg-white/50 backdrop-blur-sm"
         >
           Browse Files

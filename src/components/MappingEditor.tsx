@@ -8,8 +8,9 @@ import {
   SelectTrigger,
   SelectValue, 
 } from "@/components/ui/select";
-import { Plus, Code } from "lucide-react";
+import { Plus, Code, Download } from "lucide-react";
 import { LogicBuilder } from "./LogicBuilder";
+import { useToast } from "@/hooks/use-toast";
 
 interface MappingField {
   sourceField?: string;
@@ -20,11 +21,13 @@ interface MappingField {
 interface MappingEditorProps {
   sourceFields: string[];
   onSave: (mapping: MappingField[]) => void;
+  onDownload?: () => void;
 }
 
-export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
+export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEditorProps) {
   const [fields, setFields] = useState<MappingField[]>([]);
   const [activeLogicField, setActiveLogicField] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const addField = () => {
     setFields([...fields, { destinationField: "" }]);
@@ -39,6 +42,43 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
   const handleLogicSave = (index: number, code: string) => {
     updateField(index, { customLogic: code });
     setActiveLogicField(null);
+    toast({
+      title: "Custom Logic Saved",
+      description: "Your transformation logic has been updated.",
+    });
+  };
+
+  const validateMapping = () => {
+    const errors = [];
+    
+    for (const field of fields) {
+      if (!field.destinationField) {
+        errors.push("All destination fields must be named");
+      }
+      if (!field.sourceField && !field.customLogic) {
+        errors.push("Fields must have either a source field or custom logic");
+      }
+    }
+
+    return errors;
+  };
+
+  const handleSave = () => {
+    const errors = validateMapping();
+    if (errors.length > 0) {
+      toast({
+        title: "Invalid Mapping",
+        description: errors[0],
+        variant: "destructive",
+      });
+      return;
+    }
+
+    onSave(fields);
+    toast({
+      title: "Mapping Saved",
+      description: `Successfully saved mapping with ${fields.length} fields.`,
+    });
   };
 
   return (
@@ -101,12 +141,25 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
           Add Field
         </Button>
 
-        <Button 
-          onClick={() => onSave(fields)}
-          className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
-        >
-          Save Mapping
-        </Button>
+        <div className="flex gap-2">
+          {onDownload && (
+            <Button 
+              variant="outline"
+              onClick={onDownload}
+              className="enhanced-button"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Mapping
+            </Button>
+          )}
+
+          <Button 
+            onClick={handleSave}
+            className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
+          >
+            Save Mapping
+          </Button>
+        </div>
       </div>
 
       {activeLogicField !== null && (
