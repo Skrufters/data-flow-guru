@@ -33,30 +33,30 @@ export default function Index() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8 px-4 sm:px-6 lg:px-8">
-      <div className="text-center space-y-4 mb-12">
-        <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+    <div className="container mx-auto py-12 space-y-8 px-4 sm:px-6 lg:px-8">
+      <div className="text-center space-y-6 mb-16">
+        <h1 className="text-5xl font-bold gradient-text tracking-tight">
           DataFlow Mapper
         </h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Transform and map your data with an intuitive visual interface
         </p>
       </div>
       
-      <div className="glass-card rounded-2xl p-6 space-y-8">
+      <div className="glass-card p-8 space-y-8">
         <Tabs defaultValue="upload" className="custom-tabs">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="upload" className="custom-tab">
+          <TabsList className="grid w-full grid-cols-2 mb-12">
+            <TabsTrigger value="upload" className="custom-tab py-3">
               Use Existing Mapping
             </TabsTrigger>
-            <TabsTrigger value="create" className="custom-tab">
+            <TabsTrigger value="create" className="custom-tab py-3">
               Create New Mapping
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upload" className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-3">
+          <TabsContent value="upload" className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">
                   Source File (CSV)
                 </label>
@@ -67,7 +67,7 @@ export default function Index() {
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">
                   Mapping File (CSV)
                 </label>
@@ -78,7 +78,7 @@ export default function Index() {
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <label className="text-sm font-medium text-muted-foreground">
                   Outbound File Name
                 </label>
@@ -86,12 +86,12 @@ export default function Index() {
                   placeholder="Enter file name"
                   value={outboundFileName}
                   onChange={(e) => setOutboundFileName(e.target.value)}
-                  className="bg-white/50 backdrop-blur-sm"
+                  className="enhanced-input"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 justify-end">
+            <div className="flex flex-wrap gap-4 justify-end">
               <Button 
                 variant="outline" 
                 onClick={() => setShowMappingEditor(true)}
@@ -109,7 +109,7 @@ export default function Index() {
               </Button>
               <Button 
                 onClick={handleExecuteMapping}
-                className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
+                className="enhanced-button gradient-animate text-white"
               >
                 <Play className="h-4 w-4 mr-2" />
                 Execute Mapping
@@ -117,8 +117,8 @@ export default function Index() {
             </div>
           </TabsContent>
 
-          <TabsContent value="create" className="space-y-6">
-            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <TabsContent value="create" className="space-y-8">
+            <div className="glass-card p-8 border border-white/20">
               <MappingEditor
                 sourceFields={sourceFields}
                 onSave={handleSaveMapping}
@@ -129,7 +129,7 @@ export default function Index() {
       </div>
 
       {showMappingEditor && (
-        <div className="glass-card rounded-2xl p-6 mt-8">
+        <div className="glass-card p-8 mt-8 hover-card">
           <MappingEditor
             sourceFields={sourceFields}
             onSave={handleSaveMapping}

@@ -32,17 +32,21 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
       )}
     >
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center gap-3">
-        <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+      <div className="flex flex-col items-center gap-4">
+        <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
           <Upload className="h-6 w-6 text-primary" />
         </div>
         <p className="text-sm text-muted-foreground">
-          {isDragActive ? "Drop the file here" : label}
+          {isDragActive ? (
+            <span className="text-primary font-medium">Drop the file here</span>
+          ) : (
+            label
+          )}
         </p>
         <Button 
           variant="outline" 
           size="sm"
-          className="enhanced-button"
+          className="enhanced-button bg-white/50 backdrop-blur-sm"
         >
           Browse Files
         </Button>

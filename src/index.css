@@ -58,38 +58,112 @@
   }
 }
 
+/* Enhanced drop zone styling */
 .drop-zone {
-  @apply border-2 border-dashed rounded-xl p-8 transition-all duration-200 ease-in-out bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md;
+  @apply border-2 border-dashed rounded-xl p-8 transition-all duration-300 ease-in-out 
+         bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md 
+         hover:border-primary/50 hover:bg-primary/5;
 }
 
 .drop-zone.active {
-  @apply border-primary bg-primary/5 shadow-lg;
+  @apply border-primary bg-primary/10 shadow-lg scale-[1.02] 
+         ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
 }
 
+/* Enhanced code preview */
 .code-preview {
-  @apply font-mono text-sm bg-slate-950 text-slate-50 p-4 rounded-lg shadow-inner;
+  @apply font-mono text-sm bg-slate-950 text-slate-50 p-4 rounded-lg 
+         shadow-inner border border-slate-800/50 
+         overflow-x-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900;
 }
 
-/* Glass card effect */
+/* Glass card effect with enhanced aesthetics */
 .glass-card {
-  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+  @apply bg-white/70 backdrop-blur-md border border-white/20 
+         shadow-lg rounded-xl transition-all duration-300 
+         hover:shadow-xl hover:bg-white/80 
+         dark:bg-slate-900/70 dark:border-slate-700/30;
 }
 
 /* Enhanced tab styling */
 .custom-tabs {
-  @apply bg-white/50 backdrop-blur-sm p-1 rounded-lg shadow-sm;
+  @apply bg-white/50 backdrop-blur-sm p-1.5 rounded-lg shadow-sm 
+         border border-white/20 transition-all duration-300;
 }
 
 .custom-tab {
-  @apply data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200;
+  @apply data-[state=active]:bg-white data-[state=active]:shadow-sm 
+         transition-all duration-200 rounded-md 
+         data-[state=active]:scale-[1.02] 
+         data-[state=active]:ring-2 ring-primary/20 ring-offset-1 ring-offset-background;
 }
 
-/* Button enhancements */
+/* Enhanced button styling */
 .enhanced-button {
-  @apply shadow-sm hover:shadow-md transition-all duration-200 active:scale-95;
+  @apply shadow-sm hover:shadow-md transition-all duration-200 
+         active:scale-95 rounded-lg 
+         hover:ring-2 ring-primary/20 ring-offset-1 ring-offset-background;
 }
 
-/* Field column styling */
+/* Field column styling with enhanced aesthetics */
 .field-column {
-  @apply bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-sm hover:shadow-md transition-all duration-200;
+  @apply bg-white/70 backdrop-blur-sm rounded-xl p-6 
+         border border-white/20 shadow-sm hover:shadow-md 
+         transition-all duration-300 hover:scale-[1.02] 
+         dark:bg-slate-900/70 dark:border-slate-700/30 
+         hover:ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+}
+
+/* Enhanced scrollbar styling */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thumb-slate-700::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 9999px;
+  }
+  
+  .scrollbar-track-slate-900::-webkit-scrollbar-track {
+    background-color: #0f172a;
+  }
+}
+
+/* Animated gradient backgrounds */
+.gradient-animate {
+  @apply bg-gradient-to-r from-primary/80 via-primary to-primary/80 
+         bg-[length:200%_100%] animate-gradient;
+}
+
+@keyframes gradient {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-gradient {
+  animation: gradient 8s ease infinite;
+}
+
+/* Enhanced input styling */
+.enhanced-input {
+  @apply bg-white/50 backdrop-blur-sm border border-white/20 
+         shadow-sm hover:shadow-md transition-all duration-200 
+         focus:ring-2 ring-primary/20 ring-offset-1 ring-offset-background 
+         rounded-lg;
+}
+
+/* Title styling */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r 
+         from-primary via-primary/80 to-primary 
+         font-bold;
+}
+
+/* Card hover effects */
+.hover-card {
+  @apply transition-all duration-300 hover:scale-[1.02] 
+         hover:shadow-xl hover:bg-white/80 
+         hover:ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
 }
