@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 222.2 84% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221 83% 53%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,8 +22,8 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
-    --radius: 0.5rem;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
   }
  
   .dark {
@@ -54,18 +54,42 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-background to-background/95 min-h-screen text-foreground;
   }
 }
 
 .drop-zone {
-  @apply border-2 border-dashed rounded-lg p-8 transition-colors duration-200 ease-in-out;
+  @apply border-2 border-dashed rounded-xl p-8 transition-all duration-200 ease-in-out bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md;
 }
 
 .drop-zone.active {
-  @apply border-primary bg-primary/5;
+  @apply border-primary bg-primary/5 shadow-lg;
 }
 
 .code-preview {
-  @apply font-mono text-sm bg-slate-950 text-slate-50 p-4 rounded-lg;
+  @apply font-mono text-sm bg-slate-950 text-slate-50 p-4 rounded-lg shadow-inner;
+}
+
+/* Glass card effect */
+.glass-card {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+/* Enhanced tab styling */
+.custom-tabs {
+  @apply bg-white/50 backdrop-blur-sm p-1 rounded-lg shadow-sm;
+}
+
+.custom-tab {
+  @apply data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200;
+}
+
+/* Button enhancements */
+.enhanced-button {
+  @apply shadow-sm hover:shadow-md transition-all duration-200 active:scale-95;
+}
+
+/* Field column styling */
+.field-column {
+  @apply bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-sm hover:shadow-md transition-all duration-200;
 }

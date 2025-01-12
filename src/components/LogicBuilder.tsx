@@ -34,12 +34,17 @@ export function LogicBuilder({
   };
 
   return (
-    <Card className="p-6 space-y-6">
+    <div className="glass-card rounded-xl p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">
+        <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
           Custom Logic: {fieldName}
         </h3>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onClose}
+          className="enhanced-button"
+        >
           <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
@@ -48,6 +53,7 @@ export function LogicBuilder({
         <Button 
           variant="outline" 
           onClick={() => addOperation("variable")}
+          className="enhanced-button"
         >
           <Variable className="h-4 w-4 mr-2" />
           Create Variable
@@ -55,6 +61,7 @@ export function LogicBuilder({
         <Button 
           variant="outline" 
           onClick={() => addOperation("if")}
+          className="enhanced-button"
         >
           <ArrowDown className="h-4 w-4 mr-2" />
           If/Then
@@ -62,6 +69,7 @@ export function LogicBuilder({
         <Button 
           variant="outline" 
           onClick={() => addOperation("manipulate")}
+          className="enhanced-button"
         >
           <WrapText className="h-4 w-4 mr-2" />
           Manipulate
@@ -69,13 +77,14 @@ export function LogicBuilder({
         <Button 
           variant="outline" 
           onClick={() => addOperation("manual")}
+          className="enhanced-button"
         >
           <Code className="h-4 w-4 mr-2" />
           Manual
         </Button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 bg-white/30 backdrop-blur-sm rounded-lg p-4">
         <h4 className="font-medium">Applied Operations</h4>
         <div className="space-y-2">
           {operations.map((op, i) => (
@@ -94,13 +103,20 @@ export function LogicBuilder({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
+        <Button 
+          variant="outline" 
+          onClick={onClose}
+          className="enhanced-button"
+        >
           Cancel
         </Button>
-        <Button onClick={() => onSave(generatedCode)}>
+        <Button 
+          onClick={() => onSave(generatedCode)}
+          className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
+        >
           Save Logic
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

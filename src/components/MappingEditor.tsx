@@ -42,15 +42,15 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {fields.map((field, index) => (
-          <div key={index} className="space-y-4">
+          <div key={index} className="field-column space-y-4">
             <Select
               value={field.sourceField}
               onValueChange={(value) => updateField(index, { sourceField: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white/50">
                 <SelectValue placeholder="Select source field" />
               </SelectTrigger>
               <SelectContent>
@@ -68,12 +68,13 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
               onChange={(e) => 
                 updateField(index, { destinationField: e.target.value })
               }
+              className="bg-white/50"
             />
 
             {!field.sourceField && (
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full enhanced-button"
                 onClick={() => setActiveLogicField(index)}
               >
                 <Code className="h-4 w-4 mr-2" />
@@ -90,10 +91,23 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
         ))}
       </div>
 
-      <Button onClick={addField} className="mt-4">
-        <Plus className="h-4 w-4 mr-2" />
-        Add Field
-      </Button>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Button 
+          onClick={addField}
+          variant="outline"
+          className="enhanced-button"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Field
+        </Button>
+
+        <Button 
+          onClick={() => onSave(fields)}
+          className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
+        >
+          Save Mapping
+        </Button>
+      </div>
 
       {activeLogicField !== null && (
         <LogicBuilder
@@ -103,12 +117,6 @@ export function MappingEditor({ sourceFields, onSave }: MappingEditorProps) {
           initialCode={fields[activeLogicField]?.customLogic}
         />
       )}
-
-      <div className="flex justify-end">
-        <Button onClick={() => onSave(fields)}>
-          Save Mapping
-        </Button>
-      </div>
     </div>
   );
 }
