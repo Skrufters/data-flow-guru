@@ -26,6 +26,10 @@ export default function Index() {
   const handleSourceFileSelect = (file: File, headers: string[]) => {
     setSourceFile(file);
     setSourceFields(headers);
+    toast({
+      title: "Source File Loaded",
+      description: `Successfully loaded ${headers.length} fields from the source file.`,
+    });
   };
 
   const handleMappingFileSelect = async (file: File) => {
@@ -34,13 +38,22 @@ export default function Index() {
     // Parse the CSV mapping file
     Papa.parse(file, {
       complete: (results) => {
-        if (results.data && Array.isArray(results.data) && results.data.length > 0) {
+        if (results.data && Array.isArray(results.data)) {
+          // Get headers from first row
+          const headers = results.data[0] as string[];
+          
+          // Find indices for our columns
+          const sourceFieldIndex = headers.findIndex(h => h.toLowerCase() === "sourcefield");
+          const destFieldIndex = headers.findIndex(h => h.toLowerCase() === "destinationfield");
+          const logicIndex = headers.findIndex(h => h.toLowerCase() === "customlogic");
+          
           // Skip header row and convert to MappingField format
-          const mappingData = (results.data as string[][]).slice(1)
+          const mappingData = (results.data as string[][])
+            .slice(1)
             .map(row => ({
-              sourceField: row[0] || undefined,
-              destinationField: row[1] || "",
-              customLogic: row[2] || undefined
+              sourceField: sourceFieldIndex >= 0 ? row[sourceFieldIndex] || undefined : undefined,
+              destinationField: destFieldIndex >= 0 ? row[destFieldIndex] || "" : "",
+              customLogic: logicIndex >= 0 ? row[logicIndex] || undefined : undefined
             }))
             .filter(field => field.destinationField); // Filter out empty rows
 
@@ -188,6 +201,7 @@ export default function Index() {
           <MappingEditor
             sourceFields={sourceFields}
             onSave={handleSaveMapping}
+            initialMapping={currentMapping}
           />
         </div>
       )}

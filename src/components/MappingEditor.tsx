@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -22,13 +22,19 @@ interface MappingField {
 interface MappingEditorProps {
   sourceFields: string[];
   onSave: (mapping: MappingField[]) => void;
-  onDownload?: () => void;
+  initialMapping?: MappingField[];
 }
 
-export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEditorProps) {
+export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingEditorProps) {
   const [fields, setFields] = useState<MappingField[]>([]);
   const [activeLogicField, setActiveLogicField] = useState<number | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialMapping && initialMapping.length > 0) {
+      setFields(initialMapping);
+    }
+  }, [initialMapping]);
 
   const addField = () => {
     setFields([...fields, { destinationField: "" }]);
@@ -79,42 +85,6 @@ export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEdito
     toast({
       title: "Mapping Saved",
       description: `Successfully saved mapping with ${fields.length} fields.`,
-    });
-  };
-
-  const handleDownload = () => {
-    if (fields.length === 0) {
-      toast({
-        title: "No Mapping Available",
-        description: "Please create a mapping first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Convert mapping to CSV format
-    const csvData = fields.map(field => ({
-      sourceField: field.sourceField || "",
-      destinationField: field.destinationField,
-      customLogic: field.customLogic || ""
-    }));
-
-    const csv = Papa.unparse(csvData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", "mapping.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Mapping Downloaded",
-      description: "Your mapping configuration has been downloaded as CSV.",
     });
   };
 
@@ -178,23 +148,12 @@ export function MappingEditor({ sourceFields, onSave, onDownload }: MappingEdito
           Add Field
         </Button>
 
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={handleDownload}
-            className="enhanced-button"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download Mapping
-          </Button>
-
-          <Button 
-            onClick={handleSave}
-            className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
-          >
-            Save Mapping
-          </Button>
-        </div>
+        <Button 
+          onClick={handleSave}
+          className="enhanced-button bg-gradient-to-r from-primary to-primary/90"
+        >
+          Save Mapping
+        </Button>
       </div>
 
       {activeLogicField !== null && (
