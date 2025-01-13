@@ -8,10 +8,10 @@ import {
   SelectTrigger,
   SelectValue, 
 } from "@/components/ui/select";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Plus, Code, Download } from "lucide-react";
 import { LogicBuilder } from "./LogicBuilder";
 import { useToast } from "@/hooks/use-toast";
-import Papa from "papaparse";
 
 interface MappingField {
   sourceField?: string;
@@ -62,9 +62,6 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
       if (!field.destinationField) {
         errors.push("All destination fields must be named");
       }
-      if (!field.sourceField && !field.customLogic) {
-        errors.push("Fields must have either a source field or custom logic");
-      }
     }
 
     return errors;
@@ -90,52 +87,78 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {fields.map((field, index) => (
-          <div key={index} className="field-column space-y-4">
-            <Select
-              value={field.sourceField}
-              onValueChange={(value) => updateField(index, { sourceField: value })}
-            >
-              <SelectTrigger className="bg-white/50">
-                <SelectValue placeholder="Select source field" />
-              </SelectTrigger>
-              <SelectContent>
-                {sourceFields.map((sf) => (
-                  <SelectItem key={sf} value={sf}>
-                    {sf}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Input
-              placeholder="Destination field"
-              value={field.destinationField}
-              onChange={(e) => 
-                updateField(index, { destinationField: e.target.value })
-              }
-              className="bg-white/50"
-            />
-
-            {!field.sourceField && (
-              <Button
-                variant="outline"
-                className="w-full enhanced-button"
-                onClick={() => setActiveLogicField(index)}
-              >
-                <Code className="h-4 w-4 mr-2" />
-                Add Custom Logic
-              </Button>
-            )}
-
-            {field.customLogic && (
-              <pre className="code-preview text-xs">
-                {field.customLogic}
-              </pre>
-            )}
+      <div className="flex flex-col space-y-6">
+        <div className="grid grid-cols-[120px_1fr] gap-4">
+          <div className="space-y-8 pt-14">
+            <div className="font-medium text-sm text-muted-foreground">Source Field</div>
+            <div className="font-medium text-sm text-muted-foreground">Destination Field</div>
+            <div className="font-medium text-sm text-muted-foreground">Custom Logic</div>
           </div>
-        ))}
+          
+          <ScrollArea className="w-full whitespace-nowrap rounded-md">
+            <div className="flex space-x-6 p-4">
+              {fields.map((field, index) => (
+                <div key={index} className="flex-none w-[300px] space-y-4">
+                  <Select
+                    value={field.sourceField}
+                    onValueChange={(value) => updateField(index, { sourceField: value })}
+                  >
+                    <SelectTrigger className="bg-white/50">
+                      <SelectValue placeholder="Select source field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {sourceFields.map((sf) => (
+                        <SelectItem key={sf} value={sf}>
+                          {sf}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Input
+                    placeholder="Destination field"
+                    value={field.destinationField}
+                    onChange={(e) => 
+                      updateField(index, { destinationField: e.target.value })
+                    }
+                    className="bg-white/50"
+                  />
+
+                  <div>
+                    {!field.sourceField && !field.customLogic && (
+                      <Button
+                        variant="outline"
+                        className="w-full enhanced-button"
+                        onClick={() => setActiveLogicField(index)}
+                      >
+                        <Code className="h-4 w-4 mr-2" />
+                        Add Custom Logic
+                      </Button>
+                    )}
+
+                    {field.customLogic && (
+                      <div className="relative">
+                        <pre className="code-preview text-xs max-h-20 overflow-y-auto">
+                          {field.customLogic}
+                        </pre>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                          onClick={() => setActiveLogicField(index)}
+                        >
+                          <Code className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">

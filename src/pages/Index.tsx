@@ -39,50 +39,43 @@ export default function Index() {
     
     Papa.parse(file, {
       complete: (results) => {
-        console.log("Mapping file parsed:", results.data);
-        
-        if (results.data && Array.isArray(results.data)) {
-          const rows = results.data as string[][];
-          if (rows.length < 2) {
-            toast({
-              title: "Invalid Mapping File",
-              description: "The mapping file must have at least 2 rows.",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          const sourceFields = rows[0];
-          const destinationFields = rows[1];
-          const customLogic = rows[2] || [];
-          const preFilters = rows[3] || [];
-          const postFilters = rows[4] || [];
-
-          console.log("Destination fields:", destinationFields);
-
-          // Create mapping for each destination field
-          const mappingData = destinationFields
-            .map((destField, index): MappingField | null => {
-              if (!destField) return null;
-              
-              return {
-                destinationField: destField,
-                sourceField: sourceFields[index] || undefined,
-                customLogic: customLogic[index] || undefined,
-                preFilter: preFilters[0] || undefined,
-                postFilter: postFilters[0] || undefined,
-              };
-            })
-            .filter((mapping): mapping is MappingField => mapping !== null);
-
-          console.log("Created mapping data:", mappingData);
-          
-          setCurrentMapping(mappingData);
+        const rows = results.data as string[][];
+        if (rows.length < 2) {
           toast({
-            title: "Mapping File Loaded",
-            description: `Successfully loaded ${mappingData.length} field mappings.`,
+            title: "Invalid Mapping File",
+            description: "The mapping file must have at least 2 rows.",
+            variant: "destructive",
           });
+          return;
         }
+
+        const sourceFields = rows[0] || [];
+        const destinationFields = rows[1] || [];
+        const customLogic = rows[2] || [];
+        const preFilters = rows[3] || [];
+        const postFilters = rows[4] || [];
+
+        // Filter out empty destination fields and create mapping
+        const mappingData = destinationFields
+          .map((destField, index): MappingField | null => {
+            if (!destField?.trim()) return null;
+            
+            const customLogicValue = customLogic[index]?.trim();
+            return {
+              destinationField: destField.trim(),
+              sourceField: sourceFields[index]?.trim() || undefined,
+              customLogic: customLogicValue || undefined,
+              preFilter: preFilters[0]?.trim() || undefined,
+              postFilter: postFilters[0]?.trim() || undefined,
+            };
+          })
+          .filter((mapping): mapping is MappingField => mapping !== null);
+
+        setCurrentMapping(mappingData);
+        toast({
+          title: "Mapping File Loaded",
+          description: `Successfully loaded ${mappingData.length} field mappings.`,
+        });
       },
       error: (error) => {
         toast({
