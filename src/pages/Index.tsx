@@ -61,16 +61,16 @@ export default function Index() {
           console.log("Destination fields:", destinationFields);
 
           // Create mapping for each destination field
-          const mappingData: MappingField[] = destinationFields
-            .map((destField, index) => {
+          const mappingData = destinationFields
+            .map((destField, index): MappingField | null => {
               if (!destField) return null;
               
               return {
                 destinationField: destField,
                 sourceField: sourceFields[index] || undefined,
                 customLogic: customLogic[index] || undefined,
-                preFilter: preFilters[0] || undefined, // First column only
-                postFilter: postFilters[0] || undefined, // First column only
+                preFilter: preFilters[0] || undefined,
+                postFilter: postFilters[0] || undefined,
               };
             })
             .filter((mapping): mapping is MappingField => mapping !== null);
