@@ -100,14 +100,16 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
               {fields.map((field, index) => (
                 <div key={index} className="flex-none w-[300px] space-y-4">
                   <Select
-                    value={field.sourceField}
-                    onValueChange={(value) => updateField(index, { sourceField: value })}
+                    value={field.sourceField || "none"}
+                    onValueChange={(value) => updateField(index, { 
+                      sourceField: value === "none" ? undefined : value 
+                    })}
                   >
                     <SelectTrigger className="bg-white/50">
                       <SelectValue placeholder="Select source field" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {sourceFields.map((sf) => (
                         <SelectItem key={sf} value={sf}>
                           {sf}
