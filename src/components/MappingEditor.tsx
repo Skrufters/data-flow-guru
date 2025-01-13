@@ -88,17 +88,17 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
   return (
     <div className="space-y-8">
       <div className="flex flex-col space-y-6">
-        <div className="grid grid-cols-[120px_1fr] gap-4">
-          <div className="space-y-8 pt-14">
+        <div className="grid grid-cols-[200px_1fr] gap-8">
+          <div className="space-y-[4.5rem] pt-14">
             <div className="font-medium text-sm text-muted-foreground">Source Field</div>
             <div className="font-medium text-sm text-muted-foreground">Destination Field</div>
             <div className="font-medium text-sm text-muted-foreground">Custom Logic</div>
           </div>
           
-          <ScrollArea className="w-full whitespace-nowrap rounded-md">
-            <div className="flex space-x-6 p-4">
+          <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+            <div className="flex space-x-8 p-4">
               {fields.map((field, index) => (
-                <div key={index} className="flex-none w-[300px] space-y-4">
+                <div key={index} className="flex-none w-[280px] space-y-6">
                   <Select
                     value={field.sourceField || "none"}
                     onValueChange={(value) => updateField(index, { 
@@ -127,7 +127,7 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
                     className="bg-white/50"
                   />
 
-                  <div>
+                  <div className="min-h-[80px]">
                     {!field.sourceField && !field.customLogic && (
                       <Button
                         variant="outline"
@@ -140,8 +140,8 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
                     )}
 
                     {field.customLogic && (
-                      <div className="relative">
-                        <pre className="code-preview text-xs max-h-20 overflow-y-auto">
+                      <div className="relative bg-white/80 rounded-md p-3">
+                        <pre className="text-xs max-h-20 overflow-y-auto font-mono">
                           {field.customLogic}
                         </pre>
                         <Button

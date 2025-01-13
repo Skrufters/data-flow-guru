@@ -52,21 +52,18 @@ export default function Index() {
         const sourceFields = rows[0] || [];
         const destinationFields = rows[1] || [];
         const customLogic = rows[2] || [];
-        const preFilters = rows[3] || [];
-        const postFilters = rows[4] || [];
+        const preFilter = rows[3]?.[0]?.trim() || undefined;
+        const postFilter = rows[4]?.[0]?.trim() || undefined;
 
         // Filter out empty destination fields and create mapping
         const mappingData = destinationFields
           .map((destField, index): MappingField | null => {
             if (!destField?.trim()) return null;
             
-            const customLogicValue = customLogic[index]?.trim();
             return {
               destinationField: destField.trim(),
               sourceField: sourceFields[index]?.trim() || undefined,
-              customLogic: customLogicValue || undefined,
-              preFilter: preFilters[0]?.trim() || undefined,
-              postFilter: postFilters[0]?.trim() || undefined,
+              customLogic: customLogic[index]?.trim() || undefined,
             };
           })
           .filter((mapping): mapping is MappingField => mapping !== null);
