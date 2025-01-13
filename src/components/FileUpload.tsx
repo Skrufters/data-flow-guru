@@ -15,6 +15,7 @@ interface FileUploadProps {
 export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const processFile = async (file: File) => {
     setIsProcessing(true);
@@ -42,6 +43,7 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
     if (!file) return;
 
     try {
+      setSelectedFile(file);
       const headers = await processFile(file);
       onFileSelect(file, headers);
       toast({
@@ -69,30 +71,36 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
     <div 
       {...getRootProps()} 
       className={cn(
-        "drop-zone cursor-pointer group",
+        "drop-zone cursor-pointer group h-32",
         isDragActive && "active",
         isProcessing && "opacity-50 cursor-wait"
       )}
     >
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center gap-4">
-        <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
-          <Upload className="h-6 w-6 text-primary" />
+      <div className="flex flex-col items-center gap-2">
+        <div className="p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-300">
+          <Upload className="h-4 w-4 text-primary" />
         </div>
-        <p className="text-sm text-muted-foreground">
-          {isDragActive ? (
-            <span className="text-primary font-medium">Drop the file here</span>
-          ) : isProcessing ? (
-            "Processing file..."
-          ) : (
-            label
-          )}
-        </p>
+        {selectedFile ? (
+          <div className="text-sm">
+            <span className="font-medium text-primary">{selectedFile.name}</span>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {isDragActive ? (
+              <span className="text-primary font-medium">Drop the file here</span>
+            ) : isProcessing ? (
+              "Processing file..."
+            ) : (
+              label
+            )}
+          </p>
+        )}
         <Button 
           variant="outline" 
           size="sm"
           disabled={isProcessing}
-          className="enhanced-button bg-white/50 backdrop-blur-sm"
+          className="enhanced-button bg-white/50 backdrop-blur-sm text-xs"
         >
           Browse Files
         </Button>

@@ -38,6 +38,7 @@ export default function Index() {
     // Parse the CSV mapping file
     Papa.parse(file, {
       complete: (results) => {
+        console.log("Mapping file parsed:", results.data); // Debug log
         if (results.data && Array.isArray(results.data)) {
           // Get headers from first row
           const headers = results.data[0] as string[];
@@ -46,6 +47,8 @@ export default function Index() {
           const sourceFieldIndex = headers.findIndex(h => h.toLowerCase() === "sourcefield");
           const destFieldIndex = headers.findIndex(h => h.toLowerCase() === "destinationfield");
           const logicIndex = headers.findIndex(h => h.toLowerCase() === "customlogic");
+          
+          console.log("Column indices:", { sourceFieldIndex, destFieldIndex, logicIndex }); // Debug log
           
           // Skip header row and convert to MappingField format
           const mappingData = (results.data as string[][])
@@ -57,6 +60,8 @@ export default function Index() {
             }))
             .filter(field => field.destinationField); // Filter out empty rows
 
+          console.log("Parsed mapping data:", mappingData); // Debug log
+          
           setCurrentMapping(mappingData);
           toast({
             title: "Mapping File Loaded",
