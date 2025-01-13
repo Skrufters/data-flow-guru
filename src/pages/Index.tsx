@@ -12,6 +12,8 @@ interface MappingField {
   sourceField?: string;
   destinationField: string;
   customLogic?: string;
+  preFilter?: string;
+  postFilter?: string;
 }
 
 export default function Index() {
@@ -35,32 +37,45 @@ export default function Index() {
   const handleMappingFileSelect = async (file: File) => {
     setMappingFile(file);
     
-    // Parse the CSV mapping file
     Papa.parse(file, {
       complete: (results) => {
-        console.log("Mapping file parsed:", results.data); // Debug log
+        console.log("Mapping file parsed:", results.data);
+        
         if (results.data && Array.isArray(results.data)) {
-          // Get headers from first row
-          const headers = results.data[0] as string[];
-          
-          // Find indices for our columns
-          const sourceFieldIndex = headers.findIndex(h => h.toLowerCase() === "sourcefield");
-          const destFieldIndex = headers.findIndex(h => h.toLowerCase() === "destinationfield");
-          const logicIndex = headers.findIndex(h => h.toLowerCase() === "customlogic");
-          
-          console.log("Column indices:", { sourceFieldIndex, destFieldIndex, logicIndex }); // Debug log
-          
-          // Skip header row and convert to MappingField format
-          const mappingData = (results.data as string[][])
-            .slice(1)
-            .map(row => ({
-              sourceField: sourceFieldIndex >= 0 ? row[sourceFieldIndex] || undefined : undefined,
-              destinationField: destFieldIndex >= 0 ? row[destFieldIndex] || "" : "",
-              customLogic: logicIndex >= 0 ? row[logicIndex] || undefined : undefined
-            }))
-            .filter(field => field.destinationField); // Filter out empty rows
+          const rows = results.data as string[][];
+          if (rows.length < 2) {
+            toast({
+              title: "Invalid Mapping File",
+              description: "The mapping file must have at least 2 rows.",
+              variant: "destructive",
+            });
+            return;
+          }
 
-          console.log("Parsed mapping data:", mappingData); // Debug log
+          const sourceFields = rows[0];
+          const destinationFields = rows[1];
+          const customLogic = rows[2] || [];
+          const preFilters = rows[3] || [];
+          const postFilters = rows[4] || [];
+
+          console.log("Destination fields:", destinationFields);
+
+          // Create mapping for each destination field
+          const mappingData: MappingField[] = destinationFields
+            .map((destField, index) => {
+              if (!destField) return null;
+              
+              return {
+                destinationField: destField,
+                sourceField: sourceFields[index] || undefined,
+                customLogic: customLogic[index] || undefined,
+                preFilter: preFilters[0] || undefined, // First column only
+                postFilter: postFilters[0] || undefined, // First column only
+              };
+            })
+            .filter((mapping): mapping is MappingField => mapping !== null);
+
+          console.log("Created mapping data:", mappingData);
           
           setCurrentMapping(mappingData);
           toast({
