@@ -3,7 +3,6 @@ import { TransformationForm } from "@/components/TransformationForm";
 import { MappingEditor } from "@/components/MappingEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import Papa from "papaparse";
 
 interface MappingField {
   sourceField?: string;
@@ -53,24 +52,17 @@ export default function Index() {
     setCurrentMapping(mapping);
     setShowMappingEditor(false);
     
-    // Convert mapping to CSV format
-    const rows: string[][] = [
+    // Convert mapping to CSV format for the Python backend
+    const rows = [
       mapping.map(field => field.sourceField || ''),
       mapping.map(field => field.destinationField),
       mapping.map(field => field.customLogic || '')
     ];
     
-    const csv = Papa.unparse(rows);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mapping.csv";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const csvContent = rows.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const file = new File([blob], "mapping.csv", { type: "text/csv" });
+    setMappingFile(file);
 
     toast({
       title: "Mapping Saved",

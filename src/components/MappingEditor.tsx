@@ -32,7 +32,8 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
 
   useEffect(() => {
     if (initialMapping && initialMapping.length > 0) {
-      setFields(initialMapping);
+      // Only use the actual mapping fields, excluding filter rows
+      setFields(initialMapping.filter(field => field.destinationField));
     }
   }, [initialMapping]);
 
@@ -126,7 +127,7 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
                   />
 
                   <div className="min-h-[80px]">
-                    {!field.sourceField && !field.customLogic && (
+                    {!field.customLogic && (
                       <Button
                         variant="outline"
                         className="w-full enhanced-button"

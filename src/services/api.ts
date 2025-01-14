@@ -25,20 +25,48 @@ export const transformData = async (
     formData.append("value_replacements", JSON.stringify(valueReplacements));
   }
 
-  const response = await api.post("/transform", formData);
+  const response = await api.post("/transform", formData, {
+    responseType: 'blob',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  // Create a download link for the transformed file
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', outputFileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+
   return response.data;
 };
 
 export const parseSourceFields = async (file: File): Promise<string[]> => {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await api.post("/parse-source-fields", formData);
+  const response = await api.post("/parse-source-fields", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data.fields;
 };
 
 export const parseMappingFile = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await api.post("/parse-mapping", formData);
-  return response.data;
+  const response = await api.post("/parse-mapping", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return {
+    sourceFields: response.data.source_fields || [],
+    destinationFields: response.data.destination_fields || [],
+    customLogic: response.data.custom_logic || [],
+  };
 };
