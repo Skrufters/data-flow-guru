@@ -5,15 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Play, Edit, Wand2 } from "lucide-react";
+import { Download, Play, Edit } from "lucide-react";
 import Papa from "papaparse";
 
 interface MappingField {
   sourceField?: string;
   destinationField: string;
   customLogic?: string;
-  preFilter?: string;
-  postFilter?: string;
 }
 
 export default function Index() {
@@ -49,13 +47,11 @@ export default function Index() {
           return;
         }
 
-        const sourceFields = rows[0] || [];
-        const destinationFields = rows[1] || [];
+        const sourceFields = rows[0];
+        const destinationFields = rows[1];
         const customLogic = rows[2] || [];
-        const preFilter = rows[3]?.[0]?.trim() || undefined;
-        const postFilter = rows[4]?.[0]?.trim() || undefined;
 
-        // Filter out empty destination fields and create mapping
+        // Create mapping only from destination fields (row 2)
         const mappingData = destinationFields
           .map((destField, index): MappingField | null => {
             if (!destField?.trim()) return null;
@@ -88,17 +84,17 @@ export default function Index() {
     setCurrentMapping(mapping);
     setShowMappingEditor(false);
     
-    // Convert mapping to CSV and save
-    const csvData = mapping.map(field => [
-      field.sourceField || "",
-      field.destinationField,
-      field.customLogic || ""
-    ]);
+    // Convert mapping to CSV format
+    const rows: string[][] = [
+      // Row 1: Source fields
+      mapping.map(field => field.sourceField || ''),
+      // Row 2: Destination fields
+      mapping.map(field => field.destinationField),
+      // Row 3: Custom logic
+      mapping.map(field => field.customLogic || '')
+    ];
     
-    // Add header row
-    csvData.unshift(["sourceField", "destinationField", "customLogic"]);
-    
-    const csv = Papa.unparse(csvData);
+    const csv = Papa.unparse(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     

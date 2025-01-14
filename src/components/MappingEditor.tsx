@@ -9,7 +9,7 @@ import {
   SelectValue, 
 } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Plus, Code, Download } from "lucide-react";
+import { Plus, Code } from "lucide-react";
 import { LogicBuilder } from "./LogicBuilder";
 import { useToast } from "@/hooks/use-toast";
 
