@@ -57,13 +57,11 @@ export function MappingEditor({ sourceFields, onSave, initialMapping }: MappingE
 
   const validateMapping = () => {
     const errors = [];
-    
     for (const field of fields) {
       if (!field.destinationField) {
         errors.push("All destination fields must be named");
       }
     }
-
     return errors;
   };
 

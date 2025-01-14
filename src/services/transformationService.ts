@@ -1,13 +1,8 @@
 import { toast } from "sonner";
-
-interface TransformationResponse {
-  success: boolean;
-  message: string;
-  outputFile?: string;
-}
+import { api, transformData as apiTransformData, parseSourceFields as apiParseSourceFields, parseMappingFile as apiParseMappingFile } from "./api";
 
 export interface DateTransformation {
-  [field: string]: [string, string]; // [inputFormat, outputFormat]
+  [field: string]: [string, string];
 }
 
 export interface ValueReplacements {
@@ -22,33 +17,17 @@ export const transformData = async (
   outputFileName: string,
   dateTransformations?: DateTransformation,
   valueReplacements?: ValueReplacements
-): Promise<TransformationResponse> => {
-  const formData = new FormData();
-  formData.append("sourceFile", sourceFile);
-  formData.append("mappingFile", mappingFile);
-  formData.append("outputFileName", outputFileName);
-  
-  if (dateTransformations) {
-    formData.append("dateTransformations", JSON.stringify(dateTransformations));
-  }
-  
-  if (valueReplacements) {
-    formData.append("valueReplacements", JSON.stringify(valueReplacements));
-  }
-
+) => {
   try {
-    const response = await fetch("/api/transform", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || "Transformation failed");
-    }
-
-    return data;
+    const result = await apiTransformData(
+      sourceFile,
+      mappingFile,
+      outputFileName,
+      dateTransformations,
+      valueReplacements
+    );
+    toast.success("Data transformation completed successfully");
+    return result;
   } catch (error) {
     console.error("Transformation error:", error);
     toast.error("Failed to transform data");
@@ -57,21 +36,8 @@ export const transformData = async (
 };
 
 export const parseSourceFields = async (file: File): Promise<string[]> => {
-  const formData = new FormData();
-  formData.append("file", file);
-
   try {
-    const response = await fetch("/api/parse-source-fields", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to parse source fields");
-    }
-
-    const data = await response.json();
-    return data.fields;
+    return await apiParseSourceFields(file);
   } catch (error) {
     console.error("Error parsing source fields:", error);
     toast.error("Failed to parse source fields");
@@ -79,25 +45,16 @@ export const parseSourceFields = async (file: File): Promise<string[]> => {
   }
 };
 
-export const parseMappingFile = async (file: File): Promise<{
-  sourceFields: string[];
-  destinationFields: string[];
-  customLogic: string[];
-}> => {
-  const formData = new FormData();
-  formData.append("file", file);
-
+export const parseMappingFile = async (file: File) => {
   try {
-    const response = await fetch("/api/parse-mapping", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to parse mapping file");
-    }
-
-    return await response.json();
+    const result = await apiParseMappingFile(file);
+    return {
+      sourceFields: result.source_fields || [],
+      destinationFields: result.destination_fields || [],
+      customLogic: result.custom_logic || [],
+      preFilter: result.pre_filter,
+      postFilter: result.post_filter,
+    };
   } catch (error) {
     console.error("Error parsing mapping file:", error);
     toast.error("Failed to parse mapping file");
